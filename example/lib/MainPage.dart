@@ -21,6 +21,7 @@ class _MainPage extends State<MainPage> {
 
   String _address = "...";
   String _name = "...";
+  String _listenName = "listen";
 
   Timer _discoverableTimeoutTimer;
   int _discoverableTimeoutSecondsLeft = 0;
@@ -94,6 +95,16 @@ class _MainPage extends State<MainPage> {
         child: ListView(
           children: <Widget>[
             Divider(),
+            ListTile(
+              title: RaisedButton(
+                  child: Text(_listenName),
+                  onPressed: () async {
+                    var bc = await BluetoothConnection.listen();
+                    setState(() {
+                      _listenName = 'done'; // bc.id as String;
+                    });
+                  }),
+            ),
             ListTile(title: const Text('General')),
             SwitchListTile(
               title: const Text('Enable Bluetooth'),

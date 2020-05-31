@@ -898,6 +898,29 @@ public class FlutterBluetoothSerialPlugin implements MethodCallHandler, RequestP
                 break;
             }
 
+            case "listen": {
+                int id = ++lastConnectionId;
+                BluetoothConnectionWrapper connection = new BluetoothConnectionWrapper(id, bluetoothAdapter);
+                connections.put(id, connection);
+
+                AsyncTask.execute(() -> {
+                    try {
+                        connection.lis.tten(PLUGIN_NAMESPACE);
+                        registrar.activity().runOnUiThread(() -> result.success(id));
+                    }
+                    catch (Exception ex) {
+                        registrar.activity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                result.error("listen_error", ex.getMessage(), exceptionToString(ex));
+                            }
+                        });
+                        connections.remove(id);
+                    }
+                });
+                break;
+            }
+
             case "write": {
                 if (!call.hasArgument("id")) {
                     result.error("invalid_argument", "argument 'id' not found", null);
@@ -1154,6 +1177,11 @@ public class FlutterBluetoothSerialPlugin implements MethodCallHandler, RequestP
                     }
                 }
             });
+        }
+
+        @Override
+        protected void onConnAccepted(boolean byRemote) {
+
         }
     }
 }

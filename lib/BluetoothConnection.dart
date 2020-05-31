@@ -19,6 +19,8 @@ class BluetoothConnection {
   /// This ID identifies real full `BluetoothConenction` object on platform side code.
   final int _id;
 
+  int get id => _id;
+
   final EventChannel _readChannel;
   StreamSubscription<Uint8List> _readStreamSubscription;
   StreamController<Uint8List> _readStreamController;
@@ -61,6 +63,15 @@ class BluetoothConnection {
     return BluetoothConnection._consumeConnectionID(await FlutterBluetoothSerial
         ._methodChannel
         .invokeMethod('connect', {"address": address}));
+  }
+
+
+  static Future<BluetoothConnection> listen() async {
+    // Sorry for pseudo-factory, but `factory` keyword disallows `Future`.
+    return BluetoothConnection._consumeConnectionID(await FlutterBluetoothSerial
+        ._methodChannel
+        .invokeMethod('listen')
+    );
   }
 
   /// Should be called to make sure the connection is closed and resources are freed (sockets/channels).

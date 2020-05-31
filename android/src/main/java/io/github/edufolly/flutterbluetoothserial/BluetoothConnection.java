@@ -8,6 +8,7 @@ import java.util.Arrays;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 
 /// Universal Bluetooth serial connection class (for Java)
@@ -19,11 +20,15 @@ public abstract class BluetoothConnection
 
     protected ConnectionThread connectionThread = null;
 
+    protected ServerThread serverThread = null;
+
     public boolean isConnected() {
         return connectionThread != null && connectionThread.requestedClosing != true;
     }
 
-
+    public boolean isListening() {
+        return serverThread != null && serverThread.requestedKilling != true;
+    }
 
     public BluetoothConnection(BluetoothAdapter bluetoothAdapter) {
         this.bluetoothAdapter = bluetoothAdapter;
@@ -72,6 +77,18 @@ public abstract class BluetoothConnection
         }
     }
 
+    public void listen(String name) throws IOException {
+        serverThread = new ServerThread(name, DEFAULT_UUID);
+        serverThread.start();
+    }
+    
+    public void stopListening() {
+        if (isListening()) {
+            serverThread.cancel();
+            serverThread = null;
+        }
+    }
+
     /// Writes to connected remote device 
     public void write(byte[] data) throws IOException {
         if (!isConnected()) {
@@ -86,6 +103,9 @@ public abstract class BluetoothConnection
 
     /// Callback for disconnection.
     protected abstract void onDisconnected(boolean byRemote);
+
+    /// Callback for accepting connection.
+    protected abstract void onConnAccepted(boolean byRemote);
 
     /// Thread to handle connection I/O
     private class ConnectionThread extends Thread  {
@@ -180,6 +200,51 @@ public abstract class BluetoothConnection
                     socket.close();
                 }
                 catch (Exception e) {}
+            }
+        }
+    }
+
+    private class ServerThread extends Thread {
+        private boolean requestedKilling = false;
+        private final BluetoothServerSocket serverSocket;
+
+        ServerThread(String name, UUID uuid) throws IOException {
+            disconnect();
+            serverSocket=bluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord(name, uuid);
+        }
+        
+        public void run() {
+            BluetoothSocket socket = null;
+
+            while (socket==null && !requestedKilling)
+            {
+                try {
+                    socket = serverSocket.accept();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    onConnAccepted(false);
+                }
+
+                if(socket != null)
+                {
+                    connectionThread = new ConnectionThread(socket);
+                    onConnAccepted(true);
+                    break;
+                }
+            }
+        }
+
+        public void write(byte[] bytes) {
+            connectionThread.write(bytes);
+        }
+
+        public void cancel() {
+            requestedKilling = true;
+            try {
+                disconnect();
+                serverSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }
