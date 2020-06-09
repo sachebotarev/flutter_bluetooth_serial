@@ -228,6 +228,7 @@ public abstract class BluetoothConnection
                 if(socket != null)
                 {
                     connectionThread = new ConnectionThread(socket);
+                    connectionThread.start();
                     onConnAccepted(true);
                     break;
                 }
