@@ -905,7 +905,7 @@ public class FlutterBluetoothSerialPlugin implements MethodCallHandler, RequestP
 
                 AsyncTask.execute(() -> {
                     try {
-                        connection.lis.tten(PLUGIN_NAMESPACE);
+                        connection.listen(PLUGIN_NAMESPACE);
                         registrar.activity().runOnUiThread(() -> result.success(id));
                     }
                     catch (Exception ex) {
