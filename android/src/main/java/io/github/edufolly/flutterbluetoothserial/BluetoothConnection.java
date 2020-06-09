@@ -75,6 +75,7 @@ public abstract class BluetoothConnection
             connectionThread.cancel();
             connectionThread = null;
         }
+        stopListening();
     }
 
     public void listen(String name) throws IOException {
@@ -210,7 +211,7 @@ public abstract class BluetoothConnection
 
         ServerThread(String name, UUID uuid) throws IOException {
             disconnect();
-            serverSocket=bluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord(name, uuid);
+            serverSocket = bluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord(name, uuid);
         }
         
         public void run() {
