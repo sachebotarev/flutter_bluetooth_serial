@@ -245,7 +245,7 @@ public abstract class BluetoothConnection
                 disconnect();
                 serverSocket.close();
             } catch (IOException e) {
-                return;
+                e.printStackTrace();
             }
         }
     }

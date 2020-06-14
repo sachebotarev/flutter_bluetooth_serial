@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.net.NetworkInterface;
+import java.lang.reflect.Method;
 
 import io.flutter.view.FlutterNativeView;
 import io.flutter.plugin.common.EventChannel;
@@ -846,6 +847,22 @@ public class FlutterBluetoothSerialPlugin implements MethodCallHandler, RequestP
 
                 pendingResultForActivityResult = result;
                 ActivityCompat.startActivityForResult(registrar.activity(), intent, REQUEST_DISCOVERABLE_BLUETOOTH, null);
+                break;
+            }
+
+            case "cancelDiscoverable": {
+                try {
+                    Method setDiscoverableTimeout = BluetoothAdapter.class.getMethod("setDiscoverableTimeout", int.class);
+                    setDiscoverableTimeout.setAccessible(true);
+                    Method setScanMode =BluetoothAdapter.class.getMethod("setScanMode", int.class,int.class);
+                    setScanMode.setAccessible(true);
+
+                    setDiscoverableTimeout.invoke(bluetoothAdapter, 1);
+                    setScanMode.invoke(bluetoothAdapter, BluetoothAdapter.SCAN_MODE_CONNECTABLE,1);
+                    result.success(null);
+                } catch (Exception e) {
+                    result.error("cancel discoverable_error", "cancel discoverable failed", null);
+                }
                 break;
             }
 
