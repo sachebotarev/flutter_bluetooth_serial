@@ -134,8 +134,8 @@ public abstract class BluetoothConnection {
         public void run() {
             byte[] buffer = new byte[1024];
             byte[] result;
-            int bytes;
-            int lastRead;
+            int bytes = 0;
+            int lastRead = 0;
 
             while (!requestedClosing) {
                 try {
