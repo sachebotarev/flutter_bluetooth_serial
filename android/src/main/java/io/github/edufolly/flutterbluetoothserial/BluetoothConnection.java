@@ -143,9 +143,9 @@ public abstract class BluetoothConnection {
                         lastRead = 0;
                         lastRead = input.read(buffer);
                         if (result == null) {
-                            result = Array.copyOf(buffer, lastRead);
+                            result = Arrays.copyOf(buffer, lastRead);
                         } else {
-                            result = Array.copyOf(result, bytes + lastRead);
+                            result = Arrays.copyOf(result, bytes + lastRead);
                             System.arraycopy(buffer, 0, result, bytes, lastRead);
                         }
                         bytes += lastRead;
