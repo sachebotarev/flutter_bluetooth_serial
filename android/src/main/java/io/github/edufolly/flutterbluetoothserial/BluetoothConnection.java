@@ -134,25 +134,27 @@ public abstract class BluetoothConnection {
         public void run() {
             byte[] buffer = new byte[1024];
             byte[] result = null;
-            int bytes = 0;
-            int lastRead = 0;
+            int lastRead;
 
             while (!requestedClosing) {
                 try {
                     do {
-                        lastRead = 0;
                         lastRead = input.read(buffer);
                         if (result == null) {
                             result = Arrays.copyOf(buffer, lastRead);
                         } else {
-                            result = Arrays.copyOf(result, bytes + lastRead);
-                            System.arraycopy(buffer, 0, result, bytes, lastRead);
+                            int oldLength = result.length;
+                            result = Arrays.copyOf(result, oldLength + lastRead);
+                            System.arraycopy(buffer, 0, result, oldLength, lastRead);
                         }
-                        bytes += lastRead;
-                    } while (lastRead > 0);
-                    onRead(result);
+                        try {
+                            sleep(111);
+                        } catch (InterruptedException e) {
+                            break;
+                        }
+                    } while (input.available() > 0);
+                    if (result != null) onRead(result);
                     result = null;
-                    bytes = 0;
                 } catch (IOException e) {
                     // `input.read` throws when closed by remote device
                     break;
