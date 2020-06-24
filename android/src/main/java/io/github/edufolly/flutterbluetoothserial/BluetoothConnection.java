@@ -133,7 +133,7 @@ public abstract class BluetoothConnection
 
         /// Thread main code
         public void run() {
-            byte[] buffer = new byte[1024];
+            byte[] buffer = new byte[4096];
             int bytes;
 
             while (!requestedClosing) {
