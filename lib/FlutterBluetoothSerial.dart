@@ -246,6 +246,10 @@ class FlutterBluetoothSerial {
       await _methodChannel
           .invokeMethod("requestDiscoverable", {"duration": durationInSeconds});
 
+  Future<int> startDiscoverable(int durationInSeconds) async =>
+      await _methodChannel
+          .invokeMethod("startDiscoverable", {"duration": durationInSeconds});
+
   Future<void> cancelDiscoverable() async =>
       await _methodChannel.invokeMethod('cancelDiscoverable');
 
